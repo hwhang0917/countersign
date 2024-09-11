@@ -1,0 +1,49 @@
+# IDE / workspace
+.idea
+.vscode
+
+# MacOS
+.DS_Store
+
+# dotenv
+.env
+.env.local
+.env.development
+.env.production
+
+# Dependency directories
+node_modules/
+
+# Build outputs
+dist/
+build/
+output/
+
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binaries
+*.test
+
+# Output
+.out
+
+# Go workspace file
+go.work
+
+# Logs
+log
+*.log
+
+# Temporary files
+tmp/
+
+# Fiber
+.fiber.json
+
+# Database
+database.sqlite
