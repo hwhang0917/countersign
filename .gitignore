@@ -47,6 +47,8 @@ tmp/
 
 # Database
 database.sqlite
+*.sqlite
+*.db
 
 # Words
 words.txt
