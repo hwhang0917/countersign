@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hwhang0917/countersign/cmd"
+	"github.com/hwhang0917/countersign/internal/words"
 	"github.com/joho/godotenv"
 )
 
@@ -23,6 +24,8 @@ func main() {
 		os.Exit(1)
 	}
 	askKey := os.Args[1]
+
+	words.Init()
 
 	fmt.Print("\033[s")
 	for {

@@ -47,3 +47,6 @@ tmp/
 
 # Database
 database.sqlite
+
+# Words
+words.txt
