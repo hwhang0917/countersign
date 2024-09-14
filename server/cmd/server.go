@@ -38,12 +38,18 @@ func StartServer() {
 	app.Use(helmet.New())
 	app.Use(logger.New())
 	app.Use(healthcheck.New())
-	app.Use(keyauth.New(keyauth.Config{
-		KeyLookup: "header:X-API-Key",
-		Validator: validateAPIKey,
-	}))
+	// app.Use(keyauth.New(keyauth.Config{
+	// 	KeyLookup: "header:X-API-Key",
+	// 	Validator: validateAPIKey,
+	// }))
 	app.Use("/ws", websocket.UpgradeWebSocket)
 	app.Get("/ws/otp", websocket.GetOTPHandler())
+	app.Get("/api/interval", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"interval": config.GetInterval(),
+		})
+	})
+	app.Static("/", "./public")
 
 	log.Fatal(app.Listen(":" + config.GetPort()))
 
