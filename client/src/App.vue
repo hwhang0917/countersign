@@ -35,23 +35,27 @@ useIntervalFn(() => {
       ask_text: askText.value
     })
   )
-}, 1000)
+}, 200)
 const resetAskText = () => {
   askText.value = ''
   textInput.value = ''
 }
 const setAskText = () => {
+  if (!textInput.value) return
   askText.value = textInput.value
   isDialogOpen.value = true
 }
-const parsedData = computed(() => JSON.parse(data.value))
+const parsedData = computed(() => {
+  if (!askText.value) return null
+  return JSON.parse(data.value)
+})
 const progress = computed(() => {
   if (parsedData.value && parsedData.value.success) {
     return (parsedData.value.time_left / 30) * 100
   }
   return 0
 })
-const isLoading = computed(() => !parsedData.value)
+const isLoading = computed(() => !parsedData.value && !askText.value)
 
 watch(
   () => isDialogOpen.value,

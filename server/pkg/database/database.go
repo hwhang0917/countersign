@@ -11,6 +11,7 @@ import (
 	"github.com/hwhang0917/countersign/pkg/config"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -62,6 +63,13 @@ func MigrateModels(db *gorm.DB) error {
 func PopulateWords(db *gorm.DB) error {
 	datasetPath := config.GetDatasetPath()
 	log.Printf("Populating words from %s...", datasetPath)
+
+	currentLogger := db.Logger
+	db.Logger = db.Logger.LogMode(logger.Silent)
+	defer func() {
+		db.Logger = currentLogger
+	}()
+
 	// Open the file
 	file, err := os.Open(datasetPath)
 	if err != nil {
@@ -69,27 +77,30 @@ func PopulateWords(db *gorm.DB) error {
 	}
 	defer file.Close()
 
-	// Create a scanner to read the file line by line
 	scanner := bufio.NewScanner(file)
-
-	// Read and insert words
 	for scanner.Scan() {
-		word := scanner.Text()
+		insertWord(db, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("Error reading file: [%s] due to %v", datasetPath, err)
+	}
+	return nil
+}
 
-		// Check if the word already exists
-		var existingWord models.Word
-		result := db.Where("word = ?", word).First(&existingWord)
-
-		if result.Error == gorm.ErrRecordNotFound {
-			// Word doesn't exist, so insert it
-			newWord := models.Word{Word: word}
-			db.Create(&newWord)
-			fmt.Printf("Inserted: %s\n", word)
-		} else if result.Error != nil {
-			log.Printf("Error checking word '%s': %v\n", word, result.Error)
-		} else {
-			fmt.Printf("Skipped duplicate: %s\n", word)
+func insertWord(db *gorm.DB, word string) error {
+	var existingWord models.Word
+	result := db.Where("word = ?", word).First(&existingWord)
+	if result.Error == gorm.ErrRecordNotFound {
+		newWord := models.Word{Word: word}
+		if err := db.Create(&newWord).Error; err != nil {
+			return fmt.Errorf("Failed to insert word [%s]: %v", word, err)
 		}
+		// Print progress in same line
+		fmt.Printf("\rPopulating words... [ID: %d, Word: %s]", newWord.ID, newWord.Word)
+	} else if result.Error != nil {
+		return fmt.Errorf("Failed to query word [%s]: %v", word, result.Error)
+	} else {
+		return nil
 	}
 	return nil
 }

@@ -4,6 +4,7 @@ CLIENT_DIR := client
 DIST_DIR := dist
 PUBLIC_DIR := $(DIST_DIR)/public
 BINARY_NAME := countersign
+DATASET_DIR := dataset
 
 # Go build flags
 GOFLAGS := -v
@@ -11,11 +12,11 @@ GOFLAGS := -v
 # NPM command (use npm or yarn as needed)
 NPM := npm
 
-.PHONY: all build clean server client
+.PHONY: all build clean server client copy-dataset
 
 all: clean build
 
-build: client server
+build: client server copy-dataset
 
 clean:
 	rm -rf $(DIST_DIR)
@@ -31,6 +32,10 @@ client:
 	mkdir -p $(PUBLIC_DIR)
 	rm -rf $(PUBLIC_DIR)/*
 	mv $(CLIENT_DIR)/dist/* $(PUBLIC_DIR)/
+
+copy-dataset:
+	mkdir -p $(DIST_DIR)
+	cp -r $(DATASET_DIR) $(DIST_DIR)/
 
 run: build
 	cd $(DIST_DIR) && ./$(BINARY_NAME)

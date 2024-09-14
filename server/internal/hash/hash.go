@@ -45,16 +45,13 @@ func GetOTP(askKey string) string {
 
 	wordRepository := repository.NewWordRepository(database.GetDB())
 	wordService := services.NewWordService(wordRepository)
-	wordListCount, err := wordService.GetWordListCount()
+	lastId, err := wordService.GetLastID()
 	if err != nil {
 		panic(err)
 	}
-	if wordListCount == 0 {
-		return "no word"
-	}
-	wordId := int(hash) % int(wordListCount)
+	wordId := int(hash % uint64(lastId))
 
-	word, err := wordService.GetWordByID(uint(wordId))
+	word, err := wordService.GetWordByID(wordId)
 	if err != nil {
 		panic(err)
 	}

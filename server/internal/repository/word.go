@@ -17,13 +17,13 @@ func (r *WordRepository) Create(word *models.Word) error {
 	return r.db.Create(word).Error
 }
 
-func (r *WordRepository) CountAll() (int64, error) {
-	var count int64
-	err := r.db.Model(&models.Word{}).Count(&count).Error
-	return count, err
+func (r *WordRepository) GetLastID() (int64, error) {
+	var lastId int64
+	err := r.db.Model(&models.Word{}).Select("id").Order("id desc").Limit(1).Scan(&lastId).Error
+	return lastId, err
 }
 
-func (r *WordRepository) FindByID(id uint) (*models.Word, error) {
+func (r *WordRepository) FindByID(id int) (*models.Word, error) {
 	var word models.Word
 	err := r.db.First(&word, id).Error
 	return &word, err

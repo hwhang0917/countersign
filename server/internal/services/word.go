@@ -29,7 +29,7 @@ func (s *WordService) CreateWord(word string) error {
 	return s.wordRepo.Create(&models.Word{Word: word})
 }
 
-func (s *WordService) GetWordByID(id uint) (string, error) {
+func (s *WordService) GetWordByID(id int) (string, error) {
 	word, err := s.wordRepo.FindByID(id)
 	if err != nil {
 		return "", err
@@ -37,6 +37,6 @@ func (s *WordService) GetWordByID(id uint) (string, error) {
 	return word.Word, nil
 }
 
-func (s *WordService) GetWordListCount() (int64, error) {
-	return s.wordRepo.CountAll()
+func (s *WordService) GetLastID() (int64, error) {
+	return s.wordRepo.GetLastID()
 }
