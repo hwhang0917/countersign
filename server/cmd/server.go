@@ -17,17 +17,6 @@ import (
 	"github.com/hwhang0917/countersign/pkg/database"
 )
 
-type InputMessage struct {
-	Command string `json:"command"`
-	AskText string `json:"ask_text"`
-}
-
-type ResponseMessage struct {
-	Command      string `json:"command"`
-	ResponseText string `json:"response_text"`
-	SecondsLeft  int    `json:"seconds_left"`
-}
-
 func validateAPIKey(_ *fiber.Ctx, key string) (bool, error) {
 	hashedAPIKey := sha256.Sum256([]byte(config.GetAPIKey()))
 	hashedKey := sha256.Sum256([]byte(key))

@@ -31,19 +31,27 @@ func UpgradeWebSocket(c *fiber.Ctx) error {
 
 func GetOTPHandler() fiber.Handler {
 	return fiberWs.New(func(c *fiberWs.Conn) {
+		ip := c.IP()
+		log.Printf("Client connected [%s]", ip)
+
 		askKey := c.Params("askKey")
 		var req Request
 		var res Response
+
 		for {
-			_, rawRequest, err := c.ReadMessage()
-			if err != nil {
-				log.Fatalf("Error reading message: %v", err)
+			var (
+				rawRequest []byte
+				err        error
+			)
+			if _, rawRequest, err = c.ReadMessage(); err != nil {
+				log.Printf("Client disconnected [%s]", ip)
 				break
 			}
 			if err := sonic.Unmarshal(rawRequest, &req); err != nil {
 				log.Fatalf("Error unmarshaling: %v", err)
-				break
+				continue
 			}
+
 			switch req.Command {
 			case "ask":
 				otp := hash.GetOTP(askKey)
@@ -58,19 +66,15 @@ func GetOTPHandler() fiber.Handler {
 				res.Command = "time"
 				res.Data = timeLeft
 				break
-			case "disconnect":
-				res.Success = true
-				res.Command = "disconnect"
-				res.Data = "Disconnecting..."
-				c.Close()
-				break
 			default:
 				res.Success = false
 				res.Command = req.Command
 				res.Data = "Invalid command"
 				break
 			}
-			c.WriteJSON(res)
+			if err := c.WriteJSON(res); err != nil {
+				log.Fatalf("Error writing message: %v", err)
+			}
 		}
 	})
 }
