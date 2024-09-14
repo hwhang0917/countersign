@@ -18,17 +18,19 @@ func generateSHA256Hash(text string) uint64 {
 	return data
 }
 
-func getCurrentInterval() int64 {
-	return time.Now().Unix() / int64(constants.INTERVAL)
+func getCurrentInterval() (int64, int64) {
+	timeLeft := int64(constants.INTERVAL) - time.Now().Unix()%int64(constants.INTERVAL)
+	interval := time.Now().Unix() / int64(constants.INTERVAL)
+	return interval, timeLeft
 }
 
-func GenerateOTP(secretKey string, askKey string) string {
-	interval := getCurrentInterval()
+func GenerateOTP(secretKey string, askKey string) (string, int64) {
+	interval, timeLeft := getCurrentInterval()
 	seed := strings.Join([]string{secretKey, askKey, strconv.FormatInt(interval, 10)}, ":")
 	randomValue := generateSHA256Hash(seed)
 
 	wordListSize := len(constants.WORDS)
 	wordIndex := randomValue % uint64(wordListSize)
 
-	return constants.WORDS[wordIndex]
+	return constants.WORDS[wordIndex], timeLeft
 }
