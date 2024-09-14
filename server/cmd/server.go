@@ -30,6 +30,7 @@ func StartServer() {
 	config.LoadConfig()
 	database.InitDB()
 	database.MigrateModels(database.GetDB())
+	database.PopulateWords(database.GetDB())
 
 	app := fiber.New(fiber.Config{
 		JSONEncoder: sonic.Marshal,

@@ -54,3 +54,11 @@ func GetInterval() int {
 	}
 	return interval
 }
+
+func GetDatasetPath() string {
+	datasetPath := os.Getenv(constants.DATASET_PATH)
+	if datasetPath == "" {
+		datasetPath = constants.DEFAULT_DATASET_PATH
+	}
+	return datasetPath
+}

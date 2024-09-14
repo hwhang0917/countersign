@@ -16,12 +16,7 @@ git clone https://github.com/hwhang0917/countersign.git
 make
 ```
 
-3. Setup environment variables (`.env`)
-
-```dotenv
-# dist/.env
-API_KEY=<your_api_key>
-```
+3. Setup environment variables (reference: `server/.env.sample`)
 
 4. Run binary
 

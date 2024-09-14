@@ -1,6 +1,8 @@
 package database
 
 import (
+	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -54,5 +56,40 @@ func MigrateModels(db *gorm.DB) error {
 		return err
 	}
 	log.Println("✅ Models migrated")
+	return nil
+}
+
+func PopulateWords(db *gorm.DB) error {
+	datasetPath := config.GetDatasetPath()
+	log.Printf("Populating words from %s...", datasetPath)
+	// Open the file
+	file, err := os.Open(datasetPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	// Create a scanner to read the file line by line
+	scanner := bufio.NewScanner(file)
+
+	// Read and insert words
+	for scanner.Scan() {
+		word := scanner.Text()
+
+		// Check if the word already exists
+		var existingWord models.Word
+		result := db.Where("word = ?", word).First(&existingWord)
+
+		if result.Error == gorm.ErrRecordNotFound {
+			// Word doesn't exist, so insert it
+			newWord := models.Word{Word: word}
+			db.Create(&newWord)
+			fmt.Printf("Inserted: %s\n", word)
+		} else if result.Error != nil {
+			log.Printf("Error checking word '%s': %v\n", word, result.Error)
+		} else {
+			fmt.Printf("Skipped duplicate: %s\n", word)
+		}
+	}
 	return nil
 }
