@@ -52,3 +52,7 @@ database.sqlite
 
 # Words
 words.txt
+
+# Server Public
+server/public
+server/public/*
