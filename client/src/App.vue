@@ -23,13 +23,8 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 
-const isEnvDev = computed(() => import.meta.env.DEV)
 const protocol = computed(() => (window.location.protocol === 'https:' ? 'wss' : 'ws'))
-const wsUrl = computed(() =>
-  isEnvDev
-    ? `${protocol.value}://127.0.0.1:8080/ws/otp`
-    : `${protocol.value}://${window.location.host}/ws/otp`
-)
+const wsUrl = computed(() => `${protocol.value}://${window.location.host}/ws/otp`)
 const { data, send } = useWebSocket(wsUrl.value)
 
 const textInput = ref()

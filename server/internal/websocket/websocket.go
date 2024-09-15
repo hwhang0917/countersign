@@ -3,6 +3,7 @@ package websocket
 import (
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/bytedance/sonic"
 	fiberWs "github.com/gofiber/contrib/websocket"
@@ -21,6 +22,16 @@ type Response struct {
 	TimeLeft string `json:"time_left,omitempty"`
 }
 
+func getRealIP(c *fiberWs.Conn) string {
+	if ip := c.Headers("X-Forwarded-For"); ip != "" {
+		return strings.TrimSpace(strings.Split(ip, ",")[0])
+	}
+	if ip := c.Headers("X-Real-IP"); ip != "" {
+		return ip
+	}
+	return c.IP()
+}
+
 func UpgradeWebSocket(c *fiber.Ctx) error {
 	if fiberWs.IsWebSocketUpgrade(c) {
 		c.Locals("allowed", true)
@@ -31,7 +42,7 @@ func UpgradeWebSocket(c *fiber.Ctx) error {
 
 func GetOTPHandler() fiber.Handler {
 	return fiberWs.New(func(c *fiberWs.Conn) {
-		ip := c.IP()
+		ip := getRealIP(c)
 		log.Printf("Client connected [%s]", ip)
 
 		var req Request

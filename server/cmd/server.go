@@ -33,8 +33,10 @@ func StartServer() {
 	database.PopulateWords(database.GetDB())
 
 	app := fiber.New(fiber.Config{
-		JSONEncoder: sonic.Marshal,
-		JSONDecoder: sonic.Unmarshal,
+		JSONEncoder:    sonic.Marshal,
+		JSONDecoder:    sonic.Unmarshal,
+		ProxyHeader:    "X-Forwarded-For",
+		TrustedProxies: []string{"127.0.0.1"},
 	})
 	app.Use(helmet.New())
 	app.Use(logger.New())
