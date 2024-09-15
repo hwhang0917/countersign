@@ -23,11 +23,14 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 
-const { data, send } = useWebSocket('ws://localhost:8080/ws/otp')
+const protocol = computed(() => window.location.protocol === 'https:' ? 'wss' : 'ws')
+const wsUrl = computed(() => `${protocol.value}://${window.location.host}/ws/otp`)
+const { data, send } = useWebSocket(wsUrl.value)
 
 const textInput = ref()
 const askText = ref()
 const isDialogOpen = ref(false)
+
 useIntervalFn(() => {
   if (!askText.value) return
   send(
@@ -36,6 +39,7 @@ useIntervalFn(() => {
     })
   )
 }, 200)
+
 const resetAskText = () => {
   askText.value = ''
   textInput.value = ''
