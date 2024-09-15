@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useWebSocket, useIntervalFn } from '@vueuse/core'
 import {
   Card,
@@ -23,8 +23,13 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 
-const protocol = computed(() => window.location.protocol === 'https:' ? 'wss' : 'ws')
-const wsUrl = computed(() => `${protocol.value}://${window.location.host}/ws/otp`)
+const isEnvDev = computed(() => import.meta.env.DEV)
+const protocol = computed(() => (window.location.protocol === 'https:' ? 'wss' : 'ws'))
+const wsUrl = computed(() =>
+  isEnvDev
+    ? `${protocol.value}://127.0.0.1:8080/ws/otp`
+    : `${protocol.value}://${window.location.host}/ws/otp`
+)
 const { data, send } = useWebSocket(wsUrl.value)
 
 const textInput = ref()
@@ -38,7 +43,7 @@ useIntervalFn(() => {
       ask_text: askText.value
     })
   )
-}, 200)
+}, 500)
 
 const resetAskText = () => {
   askText.value = ''
@@ -59,7 +64,8 @@ const progress = computed(() => {
   }
   return 0
 })
-const isLoading = computed(() => !parsedData.value && !askText.value)
+const isLoading = computed(() => !parsedData.value)
+const year = computed(() => new Date().getFullYear());
 
 watch(
   () => isDialogOpen.value,
@@ -72,17 +78,19 @@ watch(
 </script>
 
 <template>
-  <main class="flex h-screen w-screen items-center justify-center">
-    <Card class="w-2/3 p-4">
+  <main class="flex h-dvh w-dvw items-center justify-center">
+    <Card class="flex h-full w-full flex-col justify-center lg:h-1/3 lg:w-2/3 lg:p-4">
       <CardHeader>
-        <CardTitle>Countersign</CardTitle>
+        <CardTitle class="uppercase flex justify-between items-center">
+          <p>Countersign</p>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <CardDescription>
           <div class="mb-2 flex gap-1">
             <p>인증받을 문어를 입력해주세요.</p>
             <HoverCard>
-              <HoverCardTrigger class="cursor-pointer underline">(?)</HoverCardTrigger>
+              <HoverCardTrigger class="hidden cursor-pointer underline lg:block">(?)</HoverCardTrigger>
               <HoverCardContent class="w-120">
                 <p class="font-bold">문어는 구두로 말하기 쉬운 단어일 수록 좋습니다.</p>
                 <small>예) 바나나, 바람, 종달새</small>
@@ -92,12 +100,19 @@ watch(
           <Input v-model="textInput" @keyup.enter="setAskText" />
         </CardDescription>
       </CardContent>
-      <CardFooter class="flex justify-center px-6 pb-6">
+      <CardFooter class="flex justify-center px-6 pb-6 flex-col">
         <Button class="w-full" @click="setAskText" :disabled="!textInput">인증 단어 조회</Button>
+        <small v-once class="text-gray-600 pt-6">
+          Copyright © {{ year }}
+          <a href="https://github.com/hwhang0917/countersign" class="underline underline-offset-2">
+            Heesang Whang
+          </a>.
+          All rights reserved.
+        </small>
       </CardFooter>
     </Card>
     <Dialog v-model:open="isDialogOpen">
-      <DialogContent>
+      <DialogContent class="w-dvw h-dvh lg:w-fit lg:h-fit">
         <DialogHeader v-if="isLoading">
           <DialogTitle class="mb-4">
             <Skeleton class="h-7 w-40 bg-gray-200" />

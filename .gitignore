@@ -53,6 +53,9 @@ database.sqlite
 # Words
 words.txt
 
-# Server Public
+# Server Public/Dataset
 server/public
 server/public/*
+server/dataset
+server/dataset/*
+
