@@ -1,6 +1,6 @@
-# Countersign CLI
+# Countersign
 
-> A simple CLI application to generate OTP-like countersigns to counter social engineering.
+> A simple websocket application to generate OTP-like countersigns to counter social engineering.
 
 ## Install
 
